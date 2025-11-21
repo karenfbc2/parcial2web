@@ -3,7 +3,7 @@ import { Evento } from 'src/evento/evento.entity/evento.entity';
 
 @Entity()
 export class Asistente {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn("uuid")
   id: number;
 
   @Column()

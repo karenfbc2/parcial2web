@@ -6,7 +6,7 @@ import { Asistente } from 'src/asistente/asistente.entity/asistente.entity';
 
 @Entity()
 export class Evento {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn("uuid")
   id: number;
 
   @Column()

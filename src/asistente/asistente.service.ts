@@ -1,5 +1,6 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { BusinessError, BusinessLogicException } from 'src/shared/errors/business-errors';
 import { Repository } from 'typeorm';
 import { Asistente } from 'src/asistente/asistente.entity/asistente.entity';
 import { Evento } from 'src/evento/evento.entity/evento.entity';
@@ -25,12 +26,12 @@ export class AsistenteService {
     // No puede haber dos asistentes con el mismo email en un mismo evento.
     const emailDuplicado = evento.asistentes.find(a => a.email === dto.email);
     if (emailDuplicado) {
-      throw new BadRequestException('Ya existe un asistente con este email en este evento');
+      throw new BusinessLogicException('Ya existe un asistente con este email en este evento', BusinessError.BAD_REQUEST);
     }
 
     // No puede superarse la capacidad del auditorio del evento.
     if (evento.asistentes.length >= evento.auditorio.capacidad) {
-      throw new BadRequestException('Capacidad del auditorio superada');
+      throw new BusinessLogicException("Capacidad del auditorio superada", BusinessError.BAD_REQUEST);
     }
 
     const asist = this.asistenteRepo.create({
@@ -47,7 +48,7 @@ export class AsistenteService {
       relations: ['asistentes'],
     });
 
-    if (!evento) throw new NotFoundException('Evento no encontrado');
+    if (!evento) throw new BusinessLogicException("Evento no encontrado", BusinessError.NOT_FOUND);
 
     return evento.asistentes;
   }

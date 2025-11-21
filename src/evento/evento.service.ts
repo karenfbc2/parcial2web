@@ -1,6 +1,7 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { BusinessError, BusinessLogicException } from 'src/shared/errors/business-errors';
 import { Evento } from 'src/evento/evento.entity/evento.entity';
 import { Ponente } from 'src/ponente/ponente.entity/ponente.entity';
 
@@ -17,20 +18,19 @@ export class EventoService {
     // La duración debe ser positiva.
   async crearEvento(dto: any) {
     if (dto.duraciónHoras <= 0) {
-      throw new BadRequestException('duración debe ser positiva');
+      throw new BusinessLogicException("duración debe ser positiva", BusinessError.BAD_REQUEST);
     }
 
     // 
 
     const ponente = await this.ponenteRepo.findOne({ where: { id: dto.ponenteId } });
-    if (!ponente) throw new NotFoundException('Ponente no encontrado');
+    if (!ponente) throw new BusinessLogicException("Ponente no encontrado", BusinessError.NOT_FOUND);
 
     // Si el ponente es Invitado, la descripción debe tener al menos 50 caracteres.
 
     if (ponente.tipoPonente === 'Invitado' && dto.descripcion.length < 50) {
-      throw new BadRequestException(
-        'Debe tener al menos 50 caracteres ',
-      );
+      throw new BusinessLogicException(
+        'Debe tener al menos 50 caracteres ', BusinessError.BAD_REQUEST);
     }
 
     const evento = this.eventoRepo.create({
@@ -48,10 +48,10 @@ export class EventoService {
       relations: ['auditorio'],
     });
 
-    if (!e) throw new NotFoundException('Evento no encontrado');
+    if (!e) throw new BusinessLogicException("Evento no encontrado", BusinessError.NOT_FOUND);
 
     if (!e.auditorio) {
-      throw new BadRequestException('Debe tener un auditorio asignado');
+      throw new BusinessLogicException('Debe tener un auditorio asignado', BusinessError.BAD_REQUEST);
     }
 
     e.estado = 'Aprobado';
@@ -74,7 +74,7 @@ export class EventoService {
 
   async findEventoById(id: number) {
     const e = await this.eventoRepo.findOne({ where: { id } });
-    if (!e) throw new NotFoundException('Evento no encontrado');
+    if (!e) throw new BusinessLogicException("Evento no encontrado", BusinessError.NOT_FOUND);
     return e;
   }
 }

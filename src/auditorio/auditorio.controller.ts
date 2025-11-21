@@ -1,4 +1,15 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Post, Body } from '@nestjs/common';
+import { AuditorioService } from './auditorio.service';
 
-@Controller('auditorio')
-export class AuditorioController {}
+@Controller('auditorios')
+export class AuditorioController {
+  constructor(private readonly auditorioService: AuditorioService) {}
+
+  @Post()
+  crearAuditorio(@Body() dto: any) {
+    return this.auditorioService.crearAuditorio(dto);
+  }
+}
+
+
+ 
